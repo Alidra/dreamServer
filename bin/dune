@@ -1,0 +1,10 @@
+(executable
+ (public_name webapp)
+ (name main)
+ (libraries webapp dream unix)
+ (preprocess (pps lwt_ppx)))
+
+(rule
+ (targets server.ml)
+ (deps server.eml.ml)
+ (action (run dream_eml %{deps} --workspace %{workspace_root})))
