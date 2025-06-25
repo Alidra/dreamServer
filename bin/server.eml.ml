@@ -25,12 +25,17 @@ let start () =
   @@ Dream.memory_sessions
   @@ Dream.logger
   @@ Dream.router [
-       Dream.get "/testing_instance1" (fun req -> let csrf_tag = Dream.csrf_tag req in Dream.html (show_form "" csrf_tag));
-       Dream.post "/testing_instance1" (fun request -> let csrf_tag = Dream.csrf_tag request in  match%lwt Dream.form request with
+       Dream.get "/testing_instance1" (fun req ->
+        let csrf_tag = Dream.csrf_tag req in
+        Dream.log "GET request scrf is : %s! " csrf_tag;
+        Dream.html (show_form "" csrf_tag));
+       Dream.post "/testing_instance1" (fun request ->
+        let csrf_tag = Dream.csrf_tag request in
+        Dream.log "POST request scrf is : %s! " csrf_tag;
+        match%lwt Dream.form request with
         | `Ok
           ["message", name; "search", _second] -> 
             (* Dream.log "Receiving request %s" (string_of_int (List.length [firstT, first; secondT, second])); *)
-            Dream.log "request csrf is %s!" (csrf_tag);
             Dream.html (show_form name csrf_tag)
         (* | `OK [_, from ] -> Dream.html ("something went wrong" ^ from) *)
         | _ -> Dream.empty `Bad_Request
