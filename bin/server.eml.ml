@@ -1,10 +1,10 @@
-let show_form output request =
+let show_form output csrf_tag =
   
   <html>
   <body>
 
     <form method="POST" id="form">
-      <%s! Dream.csrf_tag request %>
+      <%s! csrf_tag %>
       <p>
       <input type="search" required="true" size="100"
         name="message" value=""
@@ -25,13 +25,14 @@ let start () =
   @@ Dream.memory_sessions
   @@ Dream.logger
   @@ Dream.router [
-       Dream.get "/testing_instance1" (fun req -> Dream.html (show_form "" req));
-       Dream.post "/testing_instance1" (fun request -> match%lwt Dream.form request with
+       Dream.get "/testing_instance1" (fun req -> let csrf_tag = Dream.csrf_tag req in Dream.html (show_form "" csrf_tag));
+       Dream.post "/testing_instance1" (fun request -> let csrf_tag = Dream.csrf_tag request in  match%lwt Dream.form request with
         | `Ok
-          [ "message", from] -> 
-            Dream.log "Receiving request %s" from;
-            Dream.log "request csrf is %s!" (Dream.csrf_tag request);
-            Dream.html (show_form from request)
+          ["message", name; "search", _second] -> 
+            (* Dream.log "Receiving request %s" (string_of_int (List.length [firstT, first; secondT, second])); *)
+            Dream.log "request csrf is %s!" (csrf_tag);
+            Dream.html (show_form name csrf_tag)
+        (* | `OK [_, from ] -> Dream.html ("something went wrong" ^ from) *)
         | _ -> Dream.empty `Bad_Request
         )
      ]
